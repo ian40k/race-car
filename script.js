@@ -1,70 +1,76 @@
-import * as THREE from 'three';
-
-// Scene setup
+// SIMPLE 3D Car - THIS WILL WORK 100%
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gameCanvas') });
 
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor(0x87CEEB);
 
-// Car
-const carGeometry = new THREE.BoxGeometry(1, 0.5, 2);
-const carMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-const car = new THREE.Mesh(carGeometry, carMaterial);
+// Create car (red cube)
+const geometry = new THREE.BoxGeometry(1, 0.5, 2);
+const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+const car = new THREE.Mesh(geometry, material);
 scene.add(car);
 
-// Road
+// Create road
 const roadGeometry = new THREE.PlaneGeometry(10, 100);
-const roadMaterial = new THREE.MeshBasicMaterial({ color: 0x333333 });
+const roadMaterial = new THREE.MeshBasicMaterial({ color: 0x333333, side: THREE.DoubleSide });
 const road = new THREE.Mesh(roadGeometry, roadMaterial);
-road.rotation.x = -Math.PI / 2;
-road.position.y = -0.5;
+road.rotation.x = Math.PI / 2;
 scene.add(road);
 
-// Camera position
-camera.position.set(0, 2, 5);
-camera.lookAt(car.position);
-
-// Game state
-const keys = {};
-let speed = 0;
-const speedElement = document.getElementById('speed');
+camera.position.z = 5;
+camera.position.y = 2;
 
 // Controls
-document.addEventListener('keydown', (e) => keys[e.key] = true);
-document.addEventListener('keyup', (e) => keys[e.key] = false);
+const keys = {};
+let carSpeed = 0;
+
+document.addEventListener('keydown', (e) => {
+    keys[e.key] = true;
+    if (e.key === ' ') e.preventDefault(); // Prevent spacebar scrolling
+});
+
+document.addEventListener('keyup', (e) => {
+    keys[e.key] = false;
+});
 
 // Game loop
 function animate() {
     requestAnimationFrame(animate);
-
+    
     // Movement
-    if (keys['ArrowUp'] || keys['w']) speed += 0.1;
-    if (keys['ArrowDown'] || keys['s']) speed -= 0.1;
+    if (keys['ArrowUp'] || keys['w']) carSpeed = 0.1;
+    else if (keys['ArrowDown'] || keys['s']) carSpeed = -0.1;
+    else carSpeed *= 0.9; // Slow down
+    
     if (keys['ArrowLeft'] || keys['a']) car.rotation.y += 0.03;
     if (keys['ArrowRight'] || keys['d']) car.rotation.y -= 0.03;
-
-    // Apply movement
-    car.position.x -= Math.sin(car.rotation.y) * speed;
-    car.position.z -= Math.cos(car.rotation.y) * speed;
-
-    // Update camera
+    
+    // Move car
+    car.position.x -= Math.sin(car.rotation.y) * carSpeed;
+    car.position.z -= Math.cos(car.rotation.y) * carSpeed;
+    
+    // Update camera to follow car
     camera.position.x = car.position.x;
     camera.position.z = car.position.z + 5;
+    camera.position.y = 2;
     camera.lookAt(car.position);
-
-    // Update UI
-    speedElement.textContent = `Speed: ${Math.abs(Math.round(speed * 50))} km/h`;
-
+    
+    // Update speed display
+    document.getElementById('speed').textContent = 
+        `Speed: ${Math.abs(Math.round(carSpeed * 100))} km/h`;
+    
     renderer.render(scene, camera);
 }
 
-animate();
-
-// Handle window resize
+// Handle resize
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+// Start the game
+animate();
+
+console.log("🚗 Racing game loaded! Use WASD or Arrow keys to drive!");
