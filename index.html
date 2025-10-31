@@ -2,13 +2,21 @@
 <html>
 <head>
     <title>3D Racing Game</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body { margin: 0; padding: 0; background: #000; }
+        canvas { display: block; }
+        #speed { 
+            position: absolute; 
+            top: 20px; 
+            left: 20px; 
+            color: white; 
+            font: 24px Arial; 
+        }
+    </style>
 </head>
 <body>
-    <div id="gameContainer">
-        <div id="speed">Speed: 0 km/h</div>
-        <canvas id="gameCanvas"></canvas>
-    </div>
-    <script type="module" src="script.js"></script>
+    <div id="speed">Speed: 0 km/h</div>
+    <canvas id="gameCanvas"></canvas>
+    <script type="module" src="/script.js"></script>
 </body>
-          </html>
+        </html>
